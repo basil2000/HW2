@@ -24,7 +24,46 @@ class HomeWork2:
     #     3   4
 
     def constructBinaryTree(self, input) -> TreeNode:
-        pass
+        # scan input from left to right
+        # if the scanned ele is a number make a node and push it to a stack
+        # if the scanned ele is an operator pop two nodes from stack and meke them right and left child of operator node
+        # and push operator node back to stack
+
+
+        # edge cases
+        # empty input -> return none
+        # not enough operand to pop from stack when an operator is encountered raise exception
+        # invalid character or operands
+        # len of stack more than 1 after processing all input
+
+
+        if not input:
+            return None
+        
+        OPERATORS = {'+', '-', '*', '/'}
+        
+        stack = []
+
+        for token in input:
+            if token in OPERATORS:
+                if(len(stack) < 2):
+                    raise ValueError("not enough operands for operator")
+                right = stack.pop()
+                left = stack.pop()
+                node = TreeNode(token, left, right)
+                stack.append(node)
+
+            else:
+                try:
+                    value = int(token)
+                    node = TreeNode(value)
+                    stack.append(node)
+                except ValueError:
+                    raise ValueError(f"invalid token: {token}")
+
+        if len(stack) != 1:
+            raise ValueError("invalid expression: more than one node left in stack")
+        return stack[0]
 
 
 
@@ -55,7 +94,18 @@ class HomeWork2:
     # you can see the examples in p2_traversals.csv
 
     def postfixNotationPrint(self, head: TreeNode) -> list:
-        pass
+        # post order traversal : left -> right -> root
+        # edge case : if head is none return empty list
+
+        if head is None:
+            return []
+        
+        result = []
+        result.extend(self.postfixNotationPrint(head.left))
+        result.extend(self.postfixNotationPrint(head.right))
+        result.append(str(head.val))
+
+        return result
 
 
 class Stack:
