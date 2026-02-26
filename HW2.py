@@ -73,7 +73,17 @@ class HomeWork2:
     # you can see the examples in p2_traversals.csv
 
     def prefixNotationPrint(self, head: TreeNode) -> list:
-        pass
+        # pre order traversal : root -> left -> right
+        # edge case : if head is none return empty list
+
+        if head is None:
+            return []
+        
+        result = [str(head.val)]
+        result.extend(self.prefixNotationPrint(head.left))
+        result.extend(self.prefixNotationPrint(head.right))
+
+        return result
 
     # Problem 2.2: Use in-order traversal (left, root, right) for infix notation with appropriate parentheses.
     # return an array of elements of an infix expression
@@ -85,7 +95,27 @@ class HomeWork2:
     # treat parentheses as individual elements in the returned list (see output)
 
     def infixNotationPrint(self, head: TreeNode) -> list:
-        pass
+        """
+        In-order traversal: left subtree, root, right subtree.
+        Wraps every operator node's result in parentheses so precedence is unambiguous.
+        Leaf nodes (numbers) are returned as single-element lists without parens.
+        Returns [] for an empty tree.
+        """
+        if head is None:
+            return []
+
+        OPERATORS = {'+', '-', '*', '/'}
+
+        # Leaf node — just return the value, no parens needed
+        if head.val not in OPERATORS:
+            return [str(head.val)]
+
+        # Operator node: wrap (left op right) in parentheses
+        left_expr = self.infixNotationPrint(head.left)
+        right_expr = self.infixNotationPrint(head.right)
+        return ['('] + left_expr + [str(head.val)] + right_expr + [')']
+
+        
 
 
     # Problem 2.3: Use post-order traversal (left, right, root) to generate postfix notation.
