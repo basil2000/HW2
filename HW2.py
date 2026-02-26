@@ -148,8 +148,30 @@ class Stack:
     # Use your own stack implementation to solve problem 3
 
     def __init__(self):
-        # TODO: initialize the stack
-        pass
+        self._data = []   # underlying storage
+        self._top = -1    # index of the current top element; -1 means empty
+
+    def push(self, item):
+        """Add item to the top of the stack."""
+        self._data.append(item)
+        self._top += 1
+
+    def pop(self):
+        """Remove and return the top item. Raises IndexError if empty."""
+        if self.is_empty():
+            raise IndexError("pop from empty stack")
+        item = self._data[self._top]
+        self._data.pop()   # shrink the list
+        self._top -= 1
+        return item
+
+    def is_empty(self):
+        """Return True when the stack has no elements."""
+        return self._top == -1
+
+    def size(self):
+        """Return the number of elements currently in the stack."""
+        return self._top + 1
 
     # Problem 3: Write code to evaluate a postfix expression using stack and return the integer value
     # Use stack which you implemented above for this problem
@@ -164,9 +186,63 @@ class Stack:
 
     # DO NOT USE EVAL function for evaluating the expression
 
-    def evaluatePostfix(exp: str) -> int:
+    def evaluatePostfix(self, exp: str) -> int:
         # TODO: implement this using your Stack class
-        pass
+        """
+          - Split the expression on whitespace to get tokens.
+          - For each token:
+              * If it's a number (including negative), push it onto the stack.
+              * If it's an operator, pop two operands, apply the operator, push the result.
+          - The final result sits alone on the stack.
+
+        Edge cases handled:
+          - Empty string: returns 0 (nothing to evaluate).
+          - Division by zero: raises ZeroDivisionError so the test harness can catch it.
+          - Malformed expression (too few operands): raises ValueError.
+          - Too many operands after processing: raises ValueError.
+          - Invalid tokens: raises ValueError.
+          - Very large numbers: Python integers are arbitrary precision, so no overflow.
+          - Negative numbers: a leading '-' with digits (e.g., '-5') is recognized as numeric.
+        """
+
+        OPERATORS = {'+', '-', '*', '/'}
+
+        if not exp or not exp.strip():
+            return 0  # empty expression edge case
+
+        tokens = exp.strip().split()
+
+        for token in tokens:
+            if token in OPERATORS:
+                # Need at least two operands
+                if self.size() < 2:
+                    raise ValueError(f"Malformed postfix: not enough operands for '{token}'")
+                right = self.pop()   # popped first → right operand
+                left = self.pop()    # popped second → left operand
+
+                if token == '+':
+                    self.push(left + right)
+                elif token == '-':
+                    self.push(left - right)
+                elif token == '*':
+                    self.push(left * right)
+                elif token == '/':
+                    if right == 0:
+                        raise ZeroDivisionError("Division by zero in postfix expression")
+                    # Integer (floor) division per the expected int return type
+                    self.push(int(left / right))
+            else:
+                # Attempt to parse as integer (handles negatives like '-3')
+                try:
+                    self.push(int(token))
+                except ValueError:
+                    raise ValueError(f"Invalid token in postfix expression: '{token}'")
+
+        # After processing, exactly one value should remain
+        if self.size() != 1:
+            raise ValueError("Malformed postfix: too many operands in expression")
+
+        return self.pop()
 
 
 # Main Function. Do not edit the code below
